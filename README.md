@@ -1,4 +1,6 @@
-# Adventure2
+# adventure
+Choose your own Adventure Builder and player in Angular 2
+
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 1.0.0-beta.31.
 
