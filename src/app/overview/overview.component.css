@@ -1,0 +1,12 @@
+svg {
+  width: 90vw;
+  height: 90vh;
+}
+
+svg g.nodes circle.node {
+  cursor: pointer;
+}
+
+svg g.links line.link {
+  stroke: black;
+}

@@ -1,0 +1,34 @@
+<svg id="overview">
+  <g class="links">
+    <g *ngFor="let link of adventure.links">
+      <svg:line class="link" [attr.x1]="link.source.x" [attr.y1]="link.source.y" [attr.x2]="link.destination.x" [attr.y2]="link.destination.y"></line>
+    </g>
+  </g>
+  <g class="nodes">
+    <g *ngFor="let node of adventure.nodes">
+      <svg:circle class="node" [attr.r]="node.r" [attr.cx]="node.x" [attr.cy]="node.y" (click)="open(content, node)"></circle>
+    </g>
+  </g>
+</svg>
+
+<template ngbModalContainer #content let-c="close" let-d="dismiss">
+  <div class="modal-header">
+    <h4 class="modal-title">
+      {{selectedNode.title}}
+    </h4>
+    <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <p>{{selectedNode.text}}</p>
+    <ul>
+      <li *ngFor="let link of getLinksForNode(selectedNode)">
+        {{link.title}}
+      </li>
+    </ul>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="c('Close click')">Close</button>
+  </div>
+</template>
