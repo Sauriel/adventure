@@ -8,5 +8,10 @@ svg g.nodes circle.node {
 }
 
 svg g.links line.link {
-  stroke: black;
+  stroke: #ccc;
+  stroke-width: 4px;
+}
+
+svg g.links circle.link-info {
+  fill: #ccc;
 }

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 
-import {NgbModal, ModalDismissReasons} from '@ng-bootstrap/ng-bootstrap';
+import {NgbModal, ModalDismissReasons, NgbPopoverConfig} from '@ng-bootstrap/ng-bootstrap';
 
 import { Adventure } from '../model/adventure';
 import { Node } from '../model/node';
@@ -9,13 +9,18 @@ import { Link } from '../model/link';
 @Component({
   selector: 'app-overview',
   templateUrl: './overview.component.html',
-  styleUrls: ['./overview.component.css']
+  styleUrls: ['./overview.component.css'],
+  providers: [NgbPopoverConfig]
 })
 export class OverviewComponent implements OnInit {
   adventure: Adventure;
   selectedNode: Node;
+  selectedLink: Link;
 
-  constructor(private modalService: NgbModal) { }
+  constructor(private modalService: NgbModal, config: NgbPopoverConfig) {
+    config.placement = 'top';
+    config.triggers = 'hover';
+  }
 
   ngOnInit() {
     let adventure = new Adventure();
@@ -89,8 +94,13 @@ export class OverviewComponent implements OnInit {
     return links;
   }
 
-  open(content, node: Node) {
+  openNodeModal(content, node: Node) {
     this.modalService.open(content);
     this.selectedNode = node;
+  }
+
+  openLinkModal(content, link: Link) {
+    this.modalService.open(content);
+    this.selectedLink = link;
   }
 }

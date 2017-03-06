@@ -2,31 +2,66 @@
   <g class="links">
     <g *ngFor="let link of adventure.links">
       <svg:line class="link" [attr.x1]="link.source.x" [attr.y1]="link.source.y" [attr.x2]="link.destination.x" [attr.y2]="link.destination.y"></line>
+      <svg:circle class="link-info" r="5" [attr.cx]="(link.source.x + link.destination.x) / 2" [attr.cy]="(link.source.y + link.destination.y) / 2" container="body" placement="top" ngbTooltip="{{link.title}}"></circle>
     </g>
   </g>
   <g class="nodes">
     <g *ngFor="let node of adventure.nodes">
-      <svg:circle class="node" [attr.r]="node.r" [attr.cx]="node.x" [attr.cy]="node.y" (click)="open(content, node)"></circle>
+      <svg:circle class="node" [attr.r]="node.r" [attr.cx]="node.x" [attr.cy]="node.y" (click)="openNodeModal(nodeModal, node)" container="body" ngbPopover="{{node.text}}" popoverTitle="{{node.title}}"></circle>
     </g>
   </g>
 </svg>
 
-<template ngbModalContainer #content let-c="close" let-d="dismiss">
+<template ngbModalContainer #nodeModal let-c="close" let-d="dismiss">
   <div class="modal-header">
     <h4 class="modal-title">
-      {{selectedNode.title}}
+      <div class="input-group">
+        <span class="input-group-addon" id="node-title-input">Title</span>
+        <input type="text" class="form-control" [(ngModel)]="selectedNode.title" aria-describedby="node-title-input">
+      </div>
     </h4>
     <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
       <span aria-hidden="true">&times;</span>
     </button>
   </div>
   <div class="modal-body">
-    <p>{{selectedNode.text}}</p>
-    <ul>
-      <li *ngFor="let link of getLinksForNode(selectedNode)">
-        {{link.title}}
-      </li>
-    </ul>
+    <div class="form-group">
+      <label for="node-text-input">Text / Question</label>
+      <textarea class="form-control" id="node-text-input" rows="3" [(ngModel)]="selectedNode.text"></textarea>
+    </div>
+    <div>
+      <h5>Answers</h5>
+      <ul class="list-group">
+        <li *ngFor="let link of getLinksForNode(selectedNode)" class="list-group-item justify-content-between input-group">
+          <div class="input-group">
+            <span class="input-group-addon">{{link.title}}</span>
+            <span class="input-group-btn">
+              <button class="btn btn-secondary" type="button" (click)="openLinkModal(linkModal, link)">Change</button>
+            </span>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="c('Close click')">Close</button>
+  </div>
+</template>
+
+<template ngbModalContainer #linkModal let-c="close" let-d="dismiss">
+  <div class="modal-header">
+    <h4 class="modal-title">
+      <div class="input-group">
+        <span class="input-group-addon" id="link-title-input">Title</span>
+        <input type="text" class="form-control" [(ngModel)]="selectedLink.title" aria-describedby="link-title-input">
+      </div>
+    </h4>
+    <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+
   </div>
   <div class="modal-footer">
     <button type="button" class="btn btn-secondary" (click)="c('Close click')">Close</button>
