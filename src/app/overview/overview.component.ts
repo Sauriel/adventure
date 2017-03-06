@@ -1,10 +1,17 @@
 import { Component, OnInit } from '@angular/core';
+import {Observable} from 'rxjs/Observable';
+import 'rxjs/add/operator/map';
+import 'rxjs/add/operator/debounceTime';
+import 'rxjs/add/operator/distinctUntilChanged';
 
 import {NgbModal, ModalDismissReasons, NgbPopoverConfig} from '@ng-bootstrap/ng-bootstrap';
 
 import { Adventure } from '../model/adventure';
 import { Node } from '../model/node';
 import { Link } from '../model/link';
+import { VariableModification } from '../model/variableModification'
+import { Variable } from '../model/variable'
+import { Modification } from '../enum/modification.enum'
 
 @Component({
   selector: 'app-overview',
@@ -15,7 +22,12 @@ import { Link } from '../model/link';
 export class OverviewComponent implements OnInit {
   adventure: Adventure;
   selectedNode: Node;
-  selectedLink: Link;
+
+  search = (text$: Observable<string>) =>
+    text$
+      .debounceTime(200)
+      .distinctUntilChanged()
+      .map(term => term.length < 2 ? [] : this.adventure.variables.filter(v => new RegExp(term, 'gi').test(v.key)).splice(0, 10));
 
   constructor(private modalService: NgbModal, config: NgbPopoverConfig) {
     config.placement = 'top';
@@ -45,7 +57,16 @@ export class OverviewComponent implements OnInit {
       let link = new Link();
       link.title = "Link: " + parent.title + " -> " + node.title;
       link.source = parent;
-      link.destination = node;
+      link.target = node;
+      let modification = new VariableModification();
+      let variable = new Variable();
+      variable.key = "TestVariable " + link.title;
+      variable.value = "Value";
+      adventure.variables.push(variable);
+      modification.modificationKey = variable;
+      modification.modificationModificator = Modification.ADD;
+      modification.modificationValue = "Test";
+      link.variableModifications.push(modification);
       adventure.links.push(link);
       adventure.nodes.push(node);
       if (level < maxLevel) {
@@ -99,8 +120,11 @@ export class OverviewComponent implements OnInit {
     this.selectedNode = node;
   }
 
-  openLinkModal(content, link: Link) {
-    this.modalService.open(content);
-    this.selectedLink = link;
+  getVariableModificators() : Modification[] {
+    let allModificators = new Array();
+    allModificators.push(Modification.SET);
+    allModificators.push(Modification.ADD);
+    allModificators.push(Modification.SUBSTRACT);
+    return allModificators;
   }
 }

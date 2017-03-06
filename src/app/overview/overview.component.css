@@ -15,3 +15,15 @@ svg g.links line.link {
 svg g.links circle.link-info {
   fill: #ccc;
 }
+
+.input-group > .custom-select:first-child {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.input-group > .custom-select:not(:first-child):not(:last-child) {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}

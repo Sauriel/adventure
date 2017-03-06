@@ -7,11 +7,13 @@ import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 
 import { AppComponent } from './app.component';
 import { OverviewComponent } from './overview/overview.component';
+import { ModificationTextPipe } from './modification-text.pipe';
 
 @NgModule({
   declarations: [
     AppComponent,
-    OverviewComponent
+    OverviewComponent,
+    ModificationTextPipe
   ],
   imports: [
     BrowserModule,
