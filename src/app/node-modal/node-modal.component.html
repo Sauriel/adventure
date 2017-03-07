@@ -1,0 +1,64 @@
+<template ngbModalContainer #nodeModal let-c="close" let-d="dismiss">
+  <div class="modal-header">
+    <h4 class="modal-title">
+      {{getSelectedNode().title}}
+    </h4>
+    <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="input-group">
+      <span class="input-group-addon" id="node-title-input">Title</span>
+      <input type="text" class="form-control" [(ngModel)]="getSelectedNode().title" aria-describedby="node-title-input">
+    </div>
+    <div class="form-group">
+      <label for="node-text-input">Text / Question</label>
+      <textarea class="form-control" id="node-text-input" rows="3" [(ngModel)]="getSelectedNode().text"></textarea>
+    </div>
+    <div>
+      <h5>Answers</h5>
+      <ngb-accordion #acc="ngbAccordion" [closeOthers]="true">
+        <ng-container *ngFor="let link of getLinksForNode(getSelectedNode())">
+          <ngb-panel title="{{link.title}}">
+            <template ngbPanelContent>
+              <div class="input-group">
+                <span class="input-group-addon">Title:</span>
+                <input type="text" class="form-control" [(ngModel)]="link.title">
+              </div>
+              <div class="input-group">
+                <span class="input-group-addon">Target:</span>
+                <span class="form-control">{{link.target.title}}</span>
+                <span class="input-group-btn">
+                  <button class="btn btn-secondary" type="button" (click)="changeTarget(link)">Change</button>
+                </span>
+              </div>
+              <h5>Variables</h5>
+              <ul class="list-group">
+                <li *ngFor="let modification of link.variableModifications" class="list-group-item">
+                  <div class="input-group">
+                    <input type="text" class="form-control" [(ngModel)]="modification.modificationKey" [ngbTypeahead]="search" />
+
+                    <select class="custom-select" [(ngModel)]="modification.modificationModificator">
+                      <ng-container *ngFor="let modification of getVariableModificators()">
+                        <option [value]="modification">{{modification | modificationText}}</option>
+                      </ng-container>
+                    </select>
+
+                    <input type="text" class="form-control" [(ngModel)]="modification.modificationValue">
+                  </div>
+                </li>
+              </ul>
+              <button class="btn btn-primary">Add Variable Modification</button>
+              <button class="btn btn-danger" (click)="deleteLink(link)">Delete Answer</button>
+            </template>
+          </ngb-panel>
+        </ng-container>
+      </ngb-accordion>
+      <button class="btn btn-primary" (click)="addAnswer()">Add Answer</button>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="c('Close click')">Close</button>
+  </div>
+</template>
