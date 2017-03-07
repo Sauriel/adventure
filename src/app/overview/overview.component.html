@@ -1,14 +1,25 @@
 <svg id="overview">
+  <defs>
+  <marker id="arrow" markerWidth="10" markerHeight="10" refX="10" refY="2" orient="auto" markerUnits="strokeWidth">
+    <path d="M0,0 L0,4 L6,2 z" />
+  </marker>
+</defs>
   <g class="links">
     <g *ngFor="let link of adventure.links">
-      <svg:line class="link" [attr.x1]="link.source.x" [attr.y1]="link.source.y" [attr.x2]="link.target.x" [attr.y2]="link.target.y"></line>
+      <svg:line class="link" [attr.x1]="link.source.x" [attr.y1]="link.source.y" [attr.x2]="link.target.x" [attr.y2]="link.target.y"  marker-end="url(#arrow)"></line>
       <svg:circle class="link-info" r="5" [attr.cx]="(link.source.x + link.target.x) / 2" [attr.cy]="(link.source.y + link.target.y) / 2" container="body" placement="top" ngbTooltip="{{link.title}}"></circle>
     </g>
   </g>
   <g class="nodes">
     <g *ngFor="let node of adventure.nodes">
-      <svg:circle class="node" [attr.r]="node.r" [attr.cx]="node.x" [attr.cy]="node.y" (click)="openNodeModal(nodeModal, node)" container="body" ngbPopover="{{node.text}}" popoverTitle="{{node.title}}"></circle>
+      <svg:circle *ngIf="!nodeSelectionMode" class="node" [attr.r]="node.r" [attr.cx]="node.x" [attr.cy]="node.y" (click)="openNodeModal(nodeModal, node)" container="body" ngbPopover="{{node.text}}" popoverTitle="{{node.title}}"></circle>
+      <svg:circle *ngIf="nodeSelectionMode && node !== selectedNode" class="node selectable" [attr.r]="node.r" [attr.cx]="node.x" [attr.cy]="node.y" (click)="selectNodeAsTarget(nodeModal, node)"></circle>
+      <svg:circle *ngIf="nodeSelectionMode && node === selectedNode" class="node" [attr.r]="node.r" [attr.cx]="node.x" [attr.cy]="node.y" (click)="abortChangeTarget(nodeModal)"></circle>
     </g>
+    <svg:circle *ngIf="nodeSelectionMode" class="node selectable new-node" r="10" cx="50" cy="50" (click)="createNewNode(nodeModal)"></circle>
+    <text *ngIf="nodeSelectionMode" x="65" y="55">
+      New
+    </text>
   </g>
 </svg>
 
@@ -32,7 +43,7 @@
     </div>
     <div>
       <h5>Answers</h5>
-      <ngb-accordion>
+      <ngb-accordion #acc="ngbAccordion" [closeOthers]="true">
         <ng-container *ngFor="let link of getLinksForNode(selectedNode)">
           <ngb-panel title="{{link.title}}">
             <template ngbPanelContent>
@@ -40,7 +51,7 @@
                 <span class="input-group-addon">Target:</span>
                 <span class="form-control">{{link.target.title}}</span>
                 <span class="input-group-btn">
-                  <button class="btn btn-secondary" type="button">Change</button>
+                  <button class="btn btn-secondary" type="button" (click)="changeTarget(link)">Change</button>
                 </span>
               </div>
               <h5>Variables</h5>
@@ -60,11 +71,12 @@
                 </li>
               </ul>
               <button class="btn btn-primary">Add Variable Modification</button>
+              <button class="btn btn-danger" (click)="deleteLink(link)">Delete Answer</button>
             </template>
           </ngb-panel>
         </ng-container>
       </ngb-accordion>
-      <button class="btn btn-primary">Add Answer</button>
+      <button class="btn btn-primary" (click)="addAnswer()">Add Answer</button>
     </div>
   </div>
   <div class="modal-footer">

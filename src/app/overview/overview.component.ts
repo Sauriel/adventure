@@ -4,7 +4,7 @@ import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/debounceTime';
 import 'rxjs/add/operator/distinctUntilChanged';
 
-import {NgbModal, ModalDismissReasons, NgbPopoverConfig} from '@ng-bootstrap/ng-bootstrap';
+import {NgbModal, NgbModalRef, NgbPopoverConfig} from '@ng-bootstrap/ng-bootstrap';
 
 import { Adventure } from '../model/adventure';
 import { Node } from '../model/node';
@@ -22,6 +22,9 @@ import { Modification } from '../enum/modification.enum'
 export class OverviewComponent implements OnInit {
   adventure: Adventure;
   selectedNode: Node;
+  nodeSelectionMode = false;
+  currentLink: Link;
+  private currentModal : NgbModalRef;
 
   search = (text$: Observable<string>) =>
     text$
@@ -36,15 +39,17 @@ export class OverviewComponent implements OnInit {
 
   ngOnInit() {
     let adventure = new Adventure();
-    adventure.title = "Mein Abenteuer";
-    adventure.text = "Beschreibung des Abenteuers";
+    adventure.title = "MY ADVENTURE";
+    adventure.text = "ADVENTURE TIME!";
     let start = new Node(0);
-    start.title = "Node 1";
-    start.text = "Text 1";
+    start.title = "START";
+    start.text = "TEXT";
     start.r = 30;
     start.setCoordinates(50, 50);
     adventure.nodes.push(start);
-    this.fakeNodes(adventure, start, 1, 4, 3);
+
+    //this.fakeNodes(adventure, start, 1, 4, 3);
+
     this.adventure = adventure;
     this.calculateCoordinates();
   }
@@ -116,7 +121,7 @@ export class OverviewComponent implements OnInit {
   }
 
   openNodeModal(content, node: Node) {
-    this.modalService.open(content);
+    this.currentModal = this.modalService.open(content);
     this.selectedNode = node;
   }
 
@@ -126,5 +131,54 @@ export class OverviewComponent implements OnInit {
     allModificators.push(Modification.ADD);
     allModificators.push(Modification.SUBSTRACT);
     return allModificators;
+  }
+
+  changeTarget(link: Link) {
+    this.nodeSelectionMode = true;
+    this.currentLink = link;
+    this.currentModal.close();
+  }
+
+  abortChangeTarget(content) {
+    this.nodeSelectionMode = false;
+    this.currentLink = null;
+    this.currentModal = this.modalService.open(content);
+  }
+
+  selectNodeAsTarget(content, node: Node) {
+    this.currentLink.target = node;
+    this.nodeSelectionMode = false;
+    this.currentLink = null;
+    this.currentModal = this.modalService.open(content);
+  }
+
+  addAnswer() {
+    let newAnswer = new Link();
+    newAnswer.title = "NEW ANSWER";
+    newAnswer.source = this.selectedNode;
+    newAnswer.target = this.selectedNode;
+    this.adventure.links.push(newAnswer);
+    this.nodeSelectionMode = true;
+    this.currentLink = newAnswer;
+    this.currentModal.close();
+  }
+
+  createNewNode(content) {
+    let newNode = new Node(this.selectedNode.depth + 1);
+    newNode.title = "NEW NODE";
+    newNode.text = "LOREM IPSUM";
+    this.adventure.nodes.push(newNode);
+    this.currentLink.target = newNode;
+    this.nodeSelectionMode = false;
+    this.currentLink = null;
+    this.currentModal = this.modalService.open(content);
+    this.calculateCoordinates();
+  }
+
+  deleteLink(link: Link) {
+    let index = this.adventure.links.indexOf(link);
+    if (index > -1) {
+      this.adventure.links.splice(index, 1);
+    }
   }
 }
